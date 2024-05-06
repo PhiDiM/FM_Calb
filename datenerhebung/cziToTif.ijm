@@ -1,4 +1,4 @@
-folder = "basepath"
+folder = "folder"
 input = "img\\"
 output = "tif\\"
 list = getFileList(folder + input);
