@@ -208,7 +208,7 @@ meanNucleusArea = mean(eval(as.name(marker[[pick]]))$nucleusArea)
 sddevNucleusArea = sd(eval(as.name(marker[[pick]]))$nucleusArea)
 upperlimit = meanNucleusArea + sddevNucleusArea
 lowerlimit = meanNucleusArea - sddevNucleusArea
-test_plot(eval(as.name(marker[[pick]]))[which(eval(as.name(marker[[pick]]))$nucleusArea < upperlimit & eval(as.name(marker[[pick]]))$nucleusArea > lowerlimit),])
+test_plot(eval(as.name(marker[[pick]]))[which(eval(as.name(marker[[pick]]))$nucleusArea < upperlimit & eval(as.name(marker[[pick]]))$nucleusArea > lowerlimit & eval(as.name(marker[[pick]]))$nucleusIndex > 0),])
 
 plot(eval(as.name(marker[[pick]]))$Mean1, eval(as.name(marker[[pick]]))$adjustedMean2)
 
