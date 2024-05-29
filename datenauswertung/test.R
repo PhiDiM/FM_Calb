@@ -29,6 +29,22 @@ empty_dataframe = function()
                         Mean3 = numeric(),
                         Min3 = integer(),
                         Max3 = integer(),
+                        Origin = character())
+}
+
+empty_dataframe_nucl = function()
+{
+  data_all = data.frame(X = integer(),
+                        Area = numeric(),
+                        Mean1 = numeric(),
+                        Min1 = integer(),
+                        Max1 = integer(),
+                        Mean2 = numeric(),
+                        Min2 = integer(),
+                        Max2 = integer(),
+                        Mean3 = numeric(),
+                        Min3 = integer(),
+                        Max3 = integer(),
                         Origin = character(),
                         nucleusArea = integer(),
                         nucleusMean = numeric(),
@@ -114,7 +130,6 @@ fill_dataframe = function(folderpath, markerlist, chosenmarker)
     data_1 = data_0[which(data_0$Ch == 1),]
     data_2 = data_0[which(data_0$Ch == 2),]
     data_3 = data_0[which(data_0$Ch == 3),]
-    data_nucleus = label_nucToROI(folderpath, dataset, max_length)
     X = data_1$X
     Area = data_1$Area
     Mean1 = data_1$Mean
@@ -127,26 +142,67 @@ fill_dataframe = function(folderpath, markerlist, chosenmarker)
     Min3 = data_3$Min
     Max3 = data_3$Max
     Origin = rep(dataset, max_length)
-    nucleusArea = data_nucleus$Area
-    nucleusMean = data_nucleus$Mean
-    nucleusMin = data_nucleus$Min
-    nucleusMax = data_nucleus$Max
-    nucleusROI = data_nucleus$associatedROI
-    nucleusIndex = data_nucleus$X.1
     
     print(summary(data_1))
     print(summary(data_2))
     print(summary(data_3))
-    print(summary(data_nucleus))
     
-    print(paste(X, Area, Mean1, Min1, Max1, Mean2, Min2, Max2, Mean3, Min3, Max3, nucleusArea, nucleusMean, nucleusMin, nucleusMax, nucleusROI, nucleusIndex))
+    print(paste(X, Area, Mean1, Min1, Max1, Mean2, Min2, Max2, Mean3, Min3, Max3))
     print(Origin)
     
     print("got all data")
     print(max_length)
     
-    data_new = data.frame(X, Area, Mean1, Min1, Max1, Mean2, Min2, Max2, Mean3, Min3, Max3, Origin, nucleusArea, nucleusMean, nucleusMin, nucleusMax, nucleusROI, nucleusIndex)
-    rm(data_0, data_1, data_2, data_3, X, Area, Mean1, Min1, Max1, Mean2, Min2, Max2, Mean3, Min3, Max3, Origin, nucleusArea, nucleusMean, nucleusMin, nucleusMax, nucleusROI, nucleusIndex)
+    data_new = data.frame(X, Area, Mean1, Min1, Max1, Mean2, Min2, Max2, Mean3, Min3, Max3, Origin)
+    rm(data_0, data_1, data_2, data_3, X, Area, Mean1, Min1, Max1, Mean2, Min2, Max2, Mean3, Min3, Max3, Origin)
+    data_all = rbind(data_all, data_new)
+    rm(data_new)
+  }
+  #  data_all$adjustedMean2 = 0
+  comment(data_all) = markerlist[[chosenmarker]]
+  return(data_all)
+}
+
+fill_dataframe_nucl = function(folderpath, markerlist, chosenmarker)
+{
+  
+  fils = list.files(paste(folderpath , "protein\\", sep = ""))
+  num_files <- length(fils)
+  
+  data_all = empty_dataframe_nucl()
+  
+  for (dataset in fils)
+  {
+    data_0=read.csv(paste(paste(folderpath , "protein\\", sep = ""), dataset, sep = ""), header = TRUE, stringsAsFactors = FALSE)
+    max_length = nrow(data_0)/3
+    data_1 = data_0[which(data_0$Ch == 1),]
+    data_2 = data_0[which(data_0$Ch == 2),]
+    data_3 = data_0[which(data_0$Ch == 3),]
+    X = data_1$X
+    Area = data_1$Area
+    Mean1 = data_1$Mean
+    Min1 = data_1$Min
+    Max1 = data_1$Max
+    Mean2 = data_2$Mean
+    Min2 = data_2$Min
+    Max2 = data_2$Max
+    Mean3 = data_3$Mean
+    Min3 = data_3$Min
+    Max3 = data_3$Max
+    Origin = rep(dataset, max_length)
+    
+    print(summary(data_1))
+    print(summary(data_2))
+    print(summary(data_3))
+    
+    print(paste(X, Area, Mean1, Min1, Max1, Mean2, Min2, Max2, Mean3, Min3, Max3))
+    print(Origin)
+    
+    print("got all data")
+    print(max_length)
+    
+    data_new = data.frame(X, Area, Mean1, Min1, Max1, Mean2, Min2, Max2, Mean3, Min3, Max3, Origin)
+    rm(data_0, data_1, data_2, data_3, X, Area, Mean1, Min1, Max1, Mean2, Min2, Max2, Mean3, Min3, Max3, Origin)
     data_all = rbind(data_all, data_new)
     rm(data_new)
   }
@@ -184,9 +240,9 @@ batch_import_data = function(base = "", middle, ending = "")
 
 ##################
 
-basepath = "basepath"
+basepath = "D:\\Documents\\git\\Forschungsmodul\\img\\input\\"
 
-marker = list("bassoon","betatub3","chat","eaat1","gad65_67","map2","nestin","psd95","synaptophysin","th","vglut","test")
+marker = list("bassoon","betatub3","chat","eaat1","gad65_67","map2","nestin","psd95","synaptophysin","th","vglut","test","testvglut")
 
 pathend = "\\data\\"
 
@@ -195,7 +251,7 @@ pathend = "\\data\\"
 test_folder = list()
 
 ##################
-pick = 7
+pick = 13
 #assign(marker, empty_dataframe())
 #assign(marker, fill_dataframe(create_folderpath(marker, basepath, pathend)))
 assign(marker[[pick]], fill_dataframe(create_folderpath(basepath, marker[[pick]], pathend), marker, pick))
@@ -210,13 +266,13 @@ upperlimit = meanNucleusArea + sddevNucleusArea
 lowerlimit = meanNucleusArea - sddevNucleusArea
 test_plot(eval(as.name(marker[[pick]]))[which(eval(as.name(marker[[pick]]))$nucleusArea < upperlimit & eval(as.name(marker[[pick]]))$nucleusArea > lowerlimit & eval(as.name(marker[[pick]]))$nucleusIndex > 0),])
 
-plot(eval(as.name(marker[[pick]]))$Mean1, eval(as.name(marker[[pick]]))$adjustedMean2)
+plot(eval(as.name(marker[[pick]]))$Mean1, eval(as.name(marker[[pick]]))$Mean2)
 
 plot(eval(as.name(marker))$Mean1,eval(as.name(marker))$Mean2)
 
-ggcorrplot(cor(select(eval(as.name(marker[[pick]])), Area, Mean1, Mean2, Mean3, adjustedMean2), method = "kendall"))
+ggcorrplot(cor(select(eval(as.name(marker[[pick]]))[which(eval(as.name(marker[[pick]]))$Mean1 > 5),], Area, Mean1, Mean2, Mean3), method = "kendall"))
 
-corrplot(cor(select(eval(as.name(marker[[pick]])), Area, Mean1, Mean2, Mean3, adjustedMean2), method = "kendall"),
+corrplot(cor(select(eval(as.name(marker[[pick]])), Area, Mean1, Mean2, Mean3), method = "kendall"),
          diag = FALSE,
          method = 'color',
          order = 'alphabet',
@@ -239,7 +295,7 @@ summary(lmMarkerCalb)
 Kendall(eval(as.name(marker[[pick]]))$Mean1,eval(as.name(marker[[pick]]))$Mean2)
 print(marker[[pick]])
 
-ggplot(data=eval(as.name(marker[[pick]])), aes(x=Mean1, y=nucleusArea)) +
+ggplot(data=eval(as.name(marker[[pick]]))[which(eval(as.name(marker[[pick]]))$Mean1 > 5),], aes(x=Mean1, y=Mean2)) +
   labs(
     title = comment(eval(as.name(marker[[pick]]))),
     x = "Calbindin",
@@ -248,14 +304,14 @@ ggplot(data=eval(as.name(marker[[pick]])), aes(x=Mean1, y=nucleusArea)) +
     colour = "image origin"
   )+
   theme_light()+
-#  geom_point(aes(color=origin))+
+  geom_point(aes(color=Origin))+
 #  geom_point(aes())+
-  geom_point()+
+#  geom_point()+
 #  geom_line(aes(y=Mean2, color = "red"))
   geom_quantile()+
   geom_rug()+
-  ggscatterhist(data=eval(as.name(marker[[pick]])), x="nucleusArea", y="Mean1",
-                margin.params = list(fill = "red"))
+#  ggscatterhist(data=eval(as.name(marker[[pick]])), x="nucleusArea", y="Mean1",
+#                margin.params = list(fill = "red"))
 #                margin.plot = "boxplot"
 #              )
   stat_cor(method = "kendall")
